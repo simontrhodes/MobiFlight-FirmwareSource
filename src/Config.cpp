@@ -159,6 +159,7 @@ void resetConfig()
 #endif
     configLength    = 0;
     configActivated = false;
+    ClearMemory();
 }
 
 void OnResetConfig()
@@ -170,6 +171,17 @@ void OnResetConfig()
 void OnSaveConfig()
 {
     cmdMessenger.sendCmd(kConfigSaved, F("OK"));
+//  Uncomment the if{} part to reset and load the config via serial terminal for testing w/o the GUI
+//    1: Type "13" to reset the config
+//    2: Type "14" to get the config length
+//    3: Type "16" to load the config
+/*
+    if (readConfigLength())
+    {
+        readConfig();
+        _activateConfig();
+    }
+*/
 }
 
 void OnActivateConfig()
