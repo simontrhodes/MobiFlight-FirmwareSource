@@ -23,8 +23,11 @@
 #if MF_STEPPER_SUPPORT == 1
 #include "Stepper.h"
 #endif
+//#if MF_SERVO_SUPPORT == 1
+//#include "Servos.h"
+//#endif
 #if MF_SERVO_SUPPORT == 1
-#include "Servos.h"
+#include "ServoDriver.h"
 #endif
 #if MF_LCD_SUPPORT == 1
 #include "LCDDisplay.h"
@@ -129,9 +132,13 @@ void resetConfig()
 #if MF_SEGMENT_SUPPORT == 1
     LedSegment::Clear();
 #endif
+//#if MF_SERVO_SUPPORT == 1
+//    Servos::Clear();
+//#endif
 #if MF_SERVO_SUPPORT == 1
-    Servos::Clear();
+    ServoDriver::Clear();
 #endif
+
 #if MF_STEPPER_SUPPORT == 1
     Stepper::Clear();
 #endif
@@ -287,7 +294,8 @@ void readConfig()
 #if MF_SERVO_SUPPORT == 1
         case kTypeServo:
             params[0] = readUintFromEEPROM(&addreeprom); // Pin number
-            Servos::Add(params[0]);
+            // Servos::Add(params[0]);
+            ServoDriver::Add(params[0]);
             copy_success = readEndCommandFromEEPROM(&addreeprom); // check EEPROM until end of name
             break;
 #endif

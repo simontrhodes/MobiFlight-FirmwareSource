@@ -21,9 +21,15 @@
 #if MF_STEPPER_SUPPORT == 1
 #include "Stepper.h"
 #endif
+
 #if MF_SERVO_SUPPORT == 1
 #include "Servos.h"
 #endif
+
+#if MF_SERVO_SUPPORT == 1
+#include "ServoDriver.h"
+#endif
+
 #if MF_OUTPUT_SHIFTER_SUPPORT == 1
 #include "OutputShifter.h"
 #endif
@@ -76,6 +82,7 @@ void initPollIntervals(void)
     lastUpdate.Encoders = millis();
 #if MF_SERVO_SUPPORT == 1
     lastUpdate.Servos = millis() + 2;
+    // lastUpdate.ServoDrivers = millis() + 2;
 #endif
 #if MF_ANALOG_SUPPORT == 1
     lastUpdate.AnalogAverage = millis() + 4;
@@ -174,7 +181,9 @@ void loop()
 #endif
 
 #if MF_SERVO_SUPPORT == 1
-        timedUpdate(Servos::update, &lastUpdate.Servos, MF_SERVO_DELAY_MS);
+        // timedUpdate(Servos::update, &lastUpdate.Servos, MF_SERVO_DELAY_MS);
+        // timedUpdate(ServoDriver::update, &lastUpdate.Servos, MF_SERVO_DELAY_MS);
+        ServoDriver::update;
 #endif
 
 #if MF_ANALOG_SUPPORT == 1
