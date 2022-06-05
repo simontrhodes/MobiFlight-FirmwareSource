@@ -21,7 +21,8 @@ enum {
     kTypeAnalogInput,         // 11 Analog Device with 1 pin
     kTypeInputShifter,        // 12 Input shift register support (example: 74HC165)
     kTypeMuxDriver,           // 13 Multiplexer selector support (generates select outputs)
-    kTypeDigInMux,            // 14 Digital input multiplexer support (example: 74HCT4067, 74HCT4051)
+    kTypeDigInMux,            // 15 Digital input multiplexer support (example: 74HCT4067, 74HCT4051)
+    kTypeServoDriver          // 16 Servo Driver board with 16 channels (example: PCA9685)
 };
 
 void loadConfig(void);

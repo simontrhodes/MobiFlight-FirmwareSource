@@ -43,11 +43,11 @@ enum {
     kAnalogChange,         // 28
     kInputShifterChange,   // 29
     kDigInMuxChange,       // 30
-    kDebug = 0xFF          // 255 -> for Debug print later, changes in UI are required
+    kSetServoDriver        // 31
 };
 
-void                attachCommandCallbacks();
-uint32_t            getLastCommandMillis();
-void                setLastCommandMillis();
+void     attachCommandCallbacks();
+uint32_t getLastCommandMillis();
+void     setLastCommandMillis();
 
 extern CmdMessenger cmdMessenger;

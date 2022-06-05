@@ -20,7 +20,7 @@ void MFServoDriver::attach(uint8_t addr)
     _servoDriver.setPWMFreq(SERVO_FREQ); // Analog servos run at ~50 Hz updates
     _initialized = true;
     setExternalRange(0, 180);
-    setInternalRange(400, 2400); // Servo min and max in micro seconds
+    setInternalRange(400, 2200); // Servo min and max in micro seconds
 }
 
 void MFServoDriver::detach()

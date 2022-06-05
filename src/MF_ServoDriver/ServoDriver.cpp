@@ -10,13 +10,13 @@
 
 namespace ServoDriver
 {
-    MFServoDriver *servoDrivers[MAX_MFServoDriver];
+    MFServoDriver *servoDrivers[MAX_MFSERVODRIVERS];
     uint8_t        servoDriversRegistered = 0;
 
     void Add(uint8_t addr)
     {
 
-                if (servoDriversRegistered == MAX_MFServoDriver) {
+        if (servoDriversRegistered == MAX_MFSERVODRIVERS) {
 #ifdef DEBUG2CMDMESSENGER
             // Debug Error Message to Connector
             cmdMessenger.sendCmd(kStatus, F("Reached maximum servo driver boards"));
@@ -58,18 +58,11 @@ namespace ServoDriver
 
         if (servo >= servoDriversRegistered)
             return;
-        servo = 0;
         servoDrivers[servo]->moveTo(newPos);
 
         setLastCommandMillis();
     }
 
-    void update()
-    {
-        for (uint8_t i = 0; i < servoDriversRegistered; i++) {
-            servoDrivers[i]->update();
-        }
-    }
 } // namespace
 
 // ServoDriver.cpp

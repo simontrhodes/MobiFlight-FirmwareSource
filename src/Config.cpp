@@ -23,10 +23,10 @@
 #if MF_STEPPER_SUPPORT == 1
 #include "Stepper.h"
 #endif
-//#if MF_SERVO_SUPPORT == 1
-//#include "Servos.h"
-//#endif
 #if MF_SERVO_SUPPORT == 1
+#include "Servos.h"
+#endif
+#if MF_SERVO_DRIVER_SUPPORT == 1
 #include "ServoDriver.h"
 #endif
 #if MF_LCD_SUPPORT == 1
@@ -132,13 +132,12 @@ void resetConfig()
 #if MF_SEGMENT_SUPPORT == 1
     LedSegment::Clear();
 #endif
-//#if MF_SERVO_SUPPORT == 1
-//    Servos::Clear();
-//#endif
 #if MF_SERVO_SUPPORT == 1
+    Servos::Clear();
+#endif
+#if MF_SERVO_DRIVER_SUPPORT == 1
     ServoDriver::Clear();
 #endif
-
 #if MF_STEPPER_SUPPORT == 1
     Stepper::Clear();
 #endif
@@ -171,17 +170,17 @@ void OnResetConfig()
 void OnSaveConfig()
 {
     cmdMessenger.sendCmd(kConfigSaved, F("OK"));
-//  Uncomment the if{} part to reset and load the config via serial terminal for testing w/o the GUI
-//    1: Type "13" to reset the config
-//    2: Type "14" to get the config length
-//    3: Type "16" to load the config
-/*
-    if (readConfigLength())
-    {
-        readConfig();
-        _activateConfig();
-    }
-*/
+    //  Uncomment the if{} part to reset and load the config via serial terminal for testing w/o the GUI
+    //    1: Type "13" to reset the config
+    //    2: Type "14" to get the config length
+    //    3: Type "16" to load the config
+    /*
+        if (readConfigLength())
+        {
+            readConfig();
+            _activateConfig();
+        }
+    */
 }
 
 void OnActivateConfig()
@@ -303,11 +302,18 @@ void readConfig()
             break;
 #endif
 
+#if MF_SERVO_DRIVER_SUPPORT == 1
+        case kTypeServoDriver:
+            params[0] = readUintFromEEPROM(&addreeprom); // Address
+            ServoDriver::Add(params[0]);
+            copy_success = readEndCommandFromEEPROM(&addreeprom); // check EEPROM until end of name
+            break;
+#endif
+
 #if MF_SERVO_SUPPORT == 1
         case kTypeServo:
             params[0] = readUintFromEEPROM(&addreeprom); // Pin number
-            // Servos::Add(params[0]);
-            ServoDriver::Add(params[0]);
+            Servos::Add(params[0]);
             copy_success = readEndCommandFromEEPROM(&addreeprom); // check EEPROM until end of name
             break;
 #endif
