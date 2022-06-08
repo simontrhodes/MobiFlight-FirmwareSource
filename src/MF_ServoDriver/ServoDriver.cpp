@@ -54,11 +54,12 @@ namespace ServoDriver
     void OnSet()
     {
         int servo  = cmdMessenger.readInt16Arg();
+        int pwmpin = cmdMessenger.readInt16Arg();
         int newPos = cmdMessenger.readInt16Arg();
 
         if (servo >= servoDriversRegistered)
             return;
-        servoDrivers[servo]->moveTo(newPos);
+        servoDrivers[servo]->moveTo(pwmpin, newPos);
 
         setLastCommandMillis();
     }

@@ -22,7 +22,7 @@ public:
     void setInternalRange(int min, int max);
     void update();
     void reset();
-    void moveTo(uint16_t absolute);
+    void moveTo(uint8_t PWMpin, uint16_t absolute);
 
 private:
     int                     _mapRange[4];
