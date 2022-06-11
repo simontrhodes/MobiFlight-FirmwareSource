@@ -302,14 +302,6 @@ void readConfig()
             break;
 #endif
 
-#if MF_SERVO_DRIVER_SUPPORT == 1
-        case kTypeServoDriver:
-            params[0] = readUintFromEEPROM(&addreeprom); // Address
-            ServoDriver::Add(params[0]);
-            copy_success = readEndCommandFromEEPROM(&addreeprom); // check EEPROM until end of name
-            break;
-#endif
-
 #if MF_SERVO_SUPPORT == 1
         case kTypeServo:
             params[0] = readUintFromEEPROM(&addreeprom); // Pin number
@@ -352,6 +344,15 @@ void readConfig()
             Analog::Add(params[0], &nameBuffer[addrbuffer], params[1]);              // MUST be before readNameFromEEPROM because readNameFromEEPROM returns the pointer for the NEXT Name
             copy_success = readNameFromEEPROM(&addreeprom, nameBuffer, &addrbuffer); // copy the NULL terminated name to to nameBuffer and set to next free memory location
                                                                                      //    copy_success = readEndCommandFromEEPROM(&addreeprom);       // once the nameBuffer is not required anymore uncomment this line and delete the line before
+            break;
+#endif
+
+#if MF_SERVO_DRIVER_SUPPORT == 1
+        case kTypeServoDriver:
+            params[0] = readUintFromEEPROM(&addreeprom); // Address
+            params[1] = readUintFromEEPROM(&addreeprom); // Number of module
+            ServoDriver::Add(params[0], params[1]);
+            copy_success = readEndCommandFromEEPROM(&addreeprom); // check EEPROM until end of name
             break;
 #endif
 

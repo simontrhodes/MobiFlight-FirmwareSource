@@ -12,13 +12,15 @@ MFServoDriver::MFServoDriver()
     _initialized = false;
 }
 
-void MFServoDriver::attach(uint8_t addr)
+void MFServoDriver::attach(uint8_t addr, uint8_t moduleCount)
 {
     _servoDriver = Adafruit_PWMServoDriver(addr);
     _servoDriver.begin();
     _servoDriver.setOscillatorFrequency(OSC_FREQ);
     _servoDriver.setPWMFreq(SERVO_FREQ); // Analog servos run at ~50 Hz updates
     _initialized = true;
+    _moduleCount = moduleCount;
+
     setExternalRange(0, 4095);
     setInternalRange(0, 4095); // Servo min and max in micro seconds
 }

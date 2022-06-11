@@ -16,7 +16,7 @@ class MFServoDriver
 {
 public:
     MFServoDriver();
-    void attach(uint8_t addr);
+    void attach(uint8_t addr, uint8_t moduleCount);
     void detach();
     void setExternalRange(int min, int max);
     void setInternalRange(int min, int max);
@@ -27,6 +27,7 @@ public:
 private:
     int                     _mapRange[4];
     bool                    _initialized;
+    uint8_t                 _moduleCount; // Number of modules
     Adafruit_PWMServoDriver _servoDriver;
     long                    _targetPos;
 };

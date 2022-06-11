@@ -13,7 +13,7 @@ namespace ServoDriver
     MFServoDriver *servoDrivers[MAX_MFSERVODRIVERS];
     uint8_t        servoDriversRegistered = 0;
 
-    void Add(uint8_t addr)
+    void Add(uint8_t addr, uint8_t modules)
     {
 
         if (servoDriversRegistered == MAX_MFSERVODRIVERS) {
@@ -30,7 +30,7 @@ namespace ServoDriver
             return;
         }
         servoDrivers[servoDriversRegistered] = new (allocateMemory(sizeof(MFServoDriver))) MFServoDriver();
-        servoDrivers[servoDriversRegistered]->attach(addr);
+        servoDrivers[servoDriversRegistered]->attach(addr, modules);
 
         // all set
         servoDriversRegistered++;
@@ -53,15 +53,15 @@ namespace ServoDriver
 
     void OnSet()
     {
-        int servo  = cmdMessenger.readInt16Arg();
+        int module = cmdMessenger.readInt16Arg();
         int pwmpin = cmdMessenger.readInt16Arg();
         int newPos = cmdMessenger.readInt16Arg();
 
-        if (servo >= servoDriversRegistered)
+        if (module >= servoDriversRegistered)
             return;
-        servoDrivers[servo]->moveTo(pwmpin, newPos);
+        servoDrivers[module]->moveTo(pwmpin, newPos);
 
-        setLastCommandMillis();
+        // setLastCommandMillis();
     }
 
 } // namespace
