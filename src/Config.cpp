@@ -26,8 +26,8 @@
 #if MF_SERVO_SUPPORT == 1
 #include "Servos.h"
 #endif
-#if MF_SERVO_DRIVER_SUPPORT == 1
-#include "ServoDriver.h"
+#if MF_PWM_DRIVER_SUPPORT == 1
+#include "PWMDriver.h"
 #endif
 #if MF_LCD_SUPPORT == 1
 #include "LCDDisplay.h"
@@ -135,8 +135,8 @@ void resetConfig()
 #if MF_SERVO_SUPPORT == 1
     Servos::Clear();
 #endif
-#if MF_SERVO_DRIVER_SUPPORT == 1
-    ServoDriver::Clear();
+#if MF_PWM_DRIVER_SUPPORT == 1
+    PWMDriver::Clear();
 #endif
 #if MF_STEPPER_SUPPORT == 1
     Stepper::Clear();
@@ -347,11 +347,11 @@ void readConfig()
             break;
 #endif
 
-#if MF_SERVO_DRIVER_SUPPORT == 1
-        case kTypeServoDriver:
+#if MF_PWM_DRIVER_SUPPORT == 1
+        case kTypePWMDriver:
             params[0] = readUintFromEEPROM(&addreeprom); // Address
             params[1] = readUintFromEEPROM(&addreeprom); // Number of module
-            ServoDriver::Add(params[0], params[1]);
+            PWMDriver::Add(params[0], params[1]);
             copy_success = readEndCommandFromEEPROM(&addreeprom); // check EEPROM until end of name
             break;
 #endif

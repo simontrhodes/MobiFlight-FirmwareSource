@@ -24,8 +24,8 @@
 #if MF_SERVO_SUPPORT == 1
 #include "Servos.h"
 #endif
-#if MF_SERVO_DRIVER_SUPPORT == 1
-#include "ServoDriver.h"
+#if MF_PWM_DRIVER_SUPPORT == 1
+#include "PWMDriver.h"
 #endif
 #if MF_LCD_SUPPORT == 1
 #include "LCDDisplay.h"
@@ -64,8 +64,8 @@ void attachCommandCallbacks()
     cmdMessenger.attach(kSetServo, Servos::OnSet);
 #endif
 
-#if MF_SERVO_DRIVER_SUPPORT == 1
-    cmdMessenger.attach(kSetServoDriver, ServoDriver::OnSet);
+#if MF_PWM_DRIVER_SUPPORT == 1
+    cmdMessenger.attach(kSetPWMDriver, PWMDriver::OnSet);
 #endif
 
     cmdMessenger.attach(kGetInfo, OnGetInfo);

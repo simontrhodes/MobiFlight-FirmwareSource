@@ -21,15 +21,12 @@
 #if MF_STEPPER_SUPPORT == 1
 #include "Stepper.h"
 #endif
-
 #if MF_SERVO_SUPPORT == 1
 #include "Servos.h"
 #endif
-
-#if MF_SERVO_DRIVER_SUPPORT == 1
-#include "ServoDriver.h"
+#if MF_PWM_DRIVER_SUPPORT == 1
+#include "PWMDriver.h"
 #endif
-
 #if MF_OUTPUT_SHIFTER_SUPPORT == 1
 #include "OutputShifter.h"
 #endif
@@ -195,7 +192,7 @@ void loop()
 #if MF_DIGIN_MUX_SUPPORT == 1
         timedUpdate(DigInMux::read, &lastUpdate.DigInMux, MF_INMUX_POLL_MS);
 #endif
-        // lcds, outputs, outputshifters, segments do not need update
+        // lcds, outputs, outputshifters, segments, pwmdrivers do not need update
     }
 }
 

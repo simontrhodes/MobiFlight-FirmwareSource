@@ -43,7 +43,7 @@ enum {
     kAnalogChange,         // 28
     kInputShifterChange,   // 29
     kDigInMuxChange,       // 30
-    kSetServoDriver        // 31
+    kSetPWMDriver          // 31
 };
 
 void     attachCommandCallbacks();
