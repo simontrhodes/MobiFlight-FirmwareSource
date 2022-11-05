@@ -33,11 +33,10 @@ namespace InputShifter
         }
         inputShifters[inputShiftersRegistered] = new (allocateMemory(sizeof(MFInputShifter))) MFInputShifter;
         inputShifters[inputShiftersRegistered]->attach(latchPin, clockPin, dataPin, modules, name);
-        inputShifters[inputShiftersRegistered]->clear();
         MFInputShifter::attachHandler(handlerInputShifterOnChange);
         inputShiftersRegistered++;
 #ifdef DEBUG2CMDMESSENGER
-        cmdMessenger.sendCmd(kStatus, F("Added input shifter"));
+        cmdMessenger.sendCmd(kDebug, F("Added input shifter"));
 #endif
     }
 
@@ -48,7 +47,7 @@ namespace InputShifter
         }
         inputShiftersRegistered = 0;
 #ifdef DEBUG2CMDMESSENGER
-        cmdMessenger.sendCmd(kStatus, F("Cleared input shifter"));
+        cmdMessenger.sendCmd(kDebug, F("Cleared input shifter"));
 #endif
     }
 

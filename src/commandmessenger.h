@@ -44,6 +44,7 @@ enum {
     kInputShifterChange,   // 29
     kDigInMuxChange,       // 30
     kSetPWMDriver          // 31
+    kDebug = 0xFF          // 255
 };
 
 void     attachCommandCallbacks();

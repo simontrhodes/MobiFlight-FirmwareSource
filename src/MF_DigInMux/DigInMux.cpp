@@ -15,7 +15,7 @@ namespace DigInMux
     MFDigInMux *digInMux[MAX_DIGIN_MUX];
     uint8_t     digInMuxRegistered = 0;
 
-    void        handlerOnDigInMux(uint8_t eventId, uint8_t channel, const char *name)
+    void handlerOnDigInMux(uint8_t eventId, uint8_t channel, const char *name)
     {
         cmdMessenger.sendCmdStart(kDigInMuxChange);
         cmdMessenger.sendCmdArg(name);
@@ -24,7 +24,7 @@ namespace DigInMux
         cmdMessenger.sendCmdEnd();
     };
 
-    void Add(uint8_t dataPin, uint8_t nRegs, char const *name, bool mode)
+    void Add(uint8_t dataPin, uint8_t nRegs, char const *name)
     {
         if (digInMuxRegistered == MAX_DIGIN_MUX)
             return;
@@ -33,13 +33,12 @@ namespace DigInMux
         digInMux[digInMuxRegistered] = dip;
         dip->attach(dataPin, (nRegs == 1), name);
         dip->clear();
-        dip->setLazyMode(mode == MFDigInMux::MUX_MODE_LAZY);
         // MFDigInMux::setMux(&MUX);
         MFDigInMux::attachHandler(handlerOnDigInMux);
         digInMuxRegistered++;
 
 #ifdef DEBUG2MSG
-        cmdMessenger.sendCmd(kStatus, F("Added digital input MUX"));
+        cmdMessenger.sendCmd(kDebug, F("Added digital input MUX"));
 #endif
     }
 
@@ -50,7 +49,7 @@ namespace DigInMux
         }
         digInMuxRegistered = 0;
 #ifdef DEBUG2CMDMESSENGER
-        cmdMessenger.sendCmd(kStatus, F("Cleared dig. input Muxes"));
+        cmdMessenger.sendCmd(kDebug, F("Cleared dig. input Muxes"));
 #endif
     }
 

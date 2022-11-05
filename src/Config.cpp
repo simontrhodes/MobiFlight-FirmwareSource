@@ -96,7 +96,7 @@ bool readConfigLength()
 void loadConfig()
 {
 #ifdef DEBUG2CMDMESSENGER
-    cmdMessenger.sendCmd(kStatus, F("Load config"));
+    cmdMessenger.sendCmd(kDebug, F("Load config"));
 #endif
     if (readConfigLength()) {
         readConfig();
@@ -107,7 +107,7 @@ void loadConfig()
 void OnSetConfig()
 {
 #ifdef DEBUG2CMDMESSENGER
-    cmdMessenger.sendCmd(kStatus, F("Setting config start"));
+    cmdMessenger.sendCmd(kDebug, F("Setting config start"));
 #endif
     setLastCommandMillis();
     char   *cfg    = cmdMessenger.readStringArg();
@@ -120,7 +120,7 @@ void OnSetConfig()
     } else
         cmdMessenger.sendCmd(kStatus, -1); // last successfull saving block is already NULL terminated, nothing more todo
 #ifdef DEBUG2CMDMESSENGER
-    cmdMessenger.sendCmd(kStatus, F("Setting config end"));
+    cmdMessenger.sendCmd(kDebug, F("Setting config end"));
 #endif
 }
 
