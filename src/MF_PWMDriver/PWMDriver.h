@@ -10,7 +10,7 @@
 
 namespace PWMDriver
 {
-    void Add(uint8_t addr = 0x40, uint16_t pwmModules = 0);
+    void Add(uint8_t addr, uint16_t pwmModules = 0);
     void Clear();
     void OnSet();
 }
