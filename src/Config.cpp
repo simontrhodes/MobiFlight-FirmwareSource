@@ -6,10 +6,10 @@
 
 #include "mobiflight.h"
 #include "MFEEPROM.h"
-
 #include "Button.h"
 #include "Encoder.h"
 #include "Output.h"
+#include "ArduinoUniqueID.h"
 
 #if MF_ANALOG_SUPPORT == 1
 #include "Analog.h"
@@ -58,13 +58,12 @@ const uint8_t MEM_OFFSET_SERIAL = MEM_OFFSET_NAME + MEM_LEN_NAME;
 const uint8_t MEM_LEN_SERIAL    = 11;
 const uint8_t MEM_OFFSET_CONFIG = MEM_OFFSET_NAME + MEM_LEN_NAME + MEM_LEN_SERIAL;
 
-const char type[sizeof(MOBIFLIGHT_TYPE)] = MOBIFLIGHT_TYPE;
-char       serial[MEM_LEN_SERIAL]        = MOBIFLIGHT_SERIAL;
-char       name[MEM_LEN_NAME]            = MOBIFLIGHT_NAME;
-const int  MEM_LEN_CONFIG                = MEMLEN_CONFIG;
-char       nameBuffer[MEM_LEN_CONFIG]    = "";
-uint16_t   configLength                  = 0;
-boolean    configActivated               = false;
+char      serial[3 + UniqueIDsize * 2 + 1] = MOBIFLIGHT_SERIAL; // 3 characters for "SN-", UniqueID as HEX String, terminating NULL
+char      name[MEM_LEN_NAME]               = MOBIFLIGHT_NAME;
+const int MEM_LEN_CONFIG                   = MEMLEN_CONFIG;
+char      nameBuffer[MEM_LEN_CONFIG]       = "";
+uint16_t  configLength                     = 0;
+boolean   configActivated                  = false;
 
 void resetConfig();
 void readConfig();
@@ -80,16 +79,15 @@ bool readConfigLength()
     uint16_t addreeprom = MEM_OFFSET_CONFIG;
     uint16_t length     = MFeeprom.get_length();
     configLength        = 0;
-    do {
-        temp = MFeeprom.read_char(addreeprom++);
+
+    while (MFeeprom.read_byte(addreeprom++) != 0x00) {
         configLength++;
         if (addreeprom > length) // abort if EEPROM size will be exceeded
         {
             cmdMessenger.sendCmd(kStatus, F("Loading config failed")); // text or "-1" like config upload?
             return false;
         }
-    } while (temp != 0x00); // reads until NULL
-    configLength--;
+    }
     return true;
 }
 
@@ -201,7 +199,7 @@ uint8_t readUintFromEEPROM(volatile uint16_t *addreeprom)
     char    params[4] = {0}; // max 3 (255) digits NULL terminated
     uint8_t counter   = 0;
     do {
-        params[counter++] = MFeeprom.read_char((*addreeprom)++);      // read character from eeprom and locate next buffer and eeprom location
+        params[counter++] = MFeeprom.read_byte((*addreeprom)++);      // read character from eeprom and locate next buffer and eeprom location
     } while (params[counter - 1] != '.' && counter < sizeof(params)); // reads until limiter '.' and for safety reason not more then size of params[]
     params[counter - 1] = 0x00;                                       // replace '.' by NULL to terminate the string
     return atoi(params);
@@ -213,7 +211,7 @@ bool readNameFromEEPROM(uint16_t *addreeprom, char *buffer, uint16_t *addrbuffer
 {
     char temp = 0;
     do {
-        temp                    = MFeeprom.read_char((*addreeprom)++); // read the first character
+        temp                    = MFeeprom.read_byte((*addreeprom)++); // read the first character
         buffer[(*addrbuffer)++] = temp;                                // save character and locate next buffer position
         if (*addrbuffer >= MEMLEN_NAMES_BUFFER) {                      // nameBuffer will be exceeded
             return false;                                              // abort copying from EEPROM to nameBuffer
@@ -229,7 +227,7 @@ bool readEndCommandFromEEPROM(uint16_t *addreeprom)
     char     temp   = 0;
     uint16_t length = MFeeprom.get_length();
     do {
-        temp = MFeeprom.read_char((*addreeprom)++);
+        temp = MFeeprom.read_byte((*addreeprom)++);
         if (*addreeprom > length) // abort if EEPROM size will be exceeded
             return false;
     } while (temp != ':'); // reads until limiter ':'
@@ -240,9 +238,9 @@ void readConfig()
 {
     if (configLength == 0) // do nothing if no config is available
         return;
-    uint16_t addreeprom   = MEM_OFFSET_CONFIG; // define first memory location where config is saved in EEPROM
-    uint16_t addrbuffer   = 0;                 // and start with first memory location from nameBuffer
-    char     params[6]    = "";
+    uint16_t addreeprom   = MEM_OFFSET_CONFIG;               // define first memory location where config is saved in EEPROM
+    uint16_t addrbuffer   = 0;                               // and start with first memory location from nameBuffer
+    char     params[8]    = "";                              // buffer for reading parameters from EEPROM and sending to ::Add() function of device
     char     command      = readUintFromEEPROM(&addreeprom); // read the first value from EEPROM, it's a device definition
     bool     copy_success = true;                            // will be set to false if copying input names to nameBuffer exceeds array dimensions
                                                              // not required anymore when pins instead of names are transferred to the UI
@@ -278,7 +276,7 @@ void readConfig()
 #endif
 
 #if MF_STEPPER_SUPPORT == 1
-        case kTypeStepperDeprecated:
+        case kTypeStepperDeprecated1:
             // this is for backwards compatibility
             params[0] = readUintFromEEPROM(&addreeprom); // Pin1 number
             params[1] = readUintFromEEPROM(&addreeprom); // Pin2 number
@@ -288,16 +286,29 @@ void readConfig()
             Stepper::Add(params[0], params[1], params[2], params[3], 0);
             copy_success = readEndCommandFromEEPROM(&addreeprom); // check EEPROM until end of name
             break;
-#endif
 
-#if MF_STEPPER_SUPPORT == 1
-        case kTypeStepper:
+        case kTypeStepperDeprecated2:
             params[0] = readUintFromEEPROM(&addreeprom); // Pin1 number
             params[1] = readUintFromEEPROM(&addreeprom); // Pin2 number
             params[2] = readUintFromEEPROM(&addreeprom); // Pin3 number
             params[3] = readUintFromEEPROM(&addreeprom); // Pin4 number
             params[4] = readUintFromEEPROM(&addreeprom); // Button number
             Stepper::Add(params[0], params[1], params[2], params[3], params[4]);
+            copy_success = readEndCommandFromEEPROM(&addreeprom); // check EEPROM until end of name
+            break;
+
+        case kTypeStepper:
+            params[0] = readUintFromEEPROM(&addreeprom); // Pin1 number
+            params[1] = readUintFromEEPROM(&addreeprom); // Pin2 number
+            params[2] = readUintFromEEPROM(&addreeprom); // Pin3 number
+            params[3] = readUintFromEEPROM(&addreeprom); // Pin4 number
+            params[4] = readUintFromEEPROM(&addreeprom); // Button number
+            params[5] = readUintFromEEPROM(&addreeprom); // Stepper Mode
+            params[6] = readUintFromEEPROM(&addreeprom); // backlash
+            params[7] = readUintFromEEPROM(&addreeprom); // deactivate output
+            // there is an additional 9th parameter stored in the config (profileID) which is not needed in the firmware
+            // and therefor not read in, it is just skipped like the name with reading until end of command
+            Stepper::Add(params[0], params[1], params[2], params[3], params[4], params[5], params[6], params[7]);
             copy_success = readEndCommandFromEEPROM(&addreeprom); // check EEPROM until end of name
             break;
 #endif
@@ -425,9 +436,9 @@ void OnGetConfig()
     setLastCommandMillis();
     cmdMessenger.sendCmdStart(kInfo);
     if (configLength > 0) {
-        cmdMessenger.sendCmdArg(MFeeprom.read_char(MEM_OFFSET_CONFIG));
+        cmdMessenger.sendCmdArg((char)MFeeprom.read_byte(MEM_OFFSET_CONFIG));
         for (uint16_t i = 1; i < configLength; i++) {
-            cmdMessenger.sendArg(MFeeprom.read_char(MEM_OFFSET_CONFIG + i));
+            cmdMessenger.sendArg((char)MFeeprom.read_byte(MEM_OFFSET_CONFIG + i));
         }
     }
     cmdMessenger.sendCmdEnd();
@@ -435,9 +446,14 @@ void OnGetConfig()
 
 void OnGetInfo()
 {
+    // read the serial number and generate if 1st start up, was before in ResetBoard()
+    // moved to this position as the time to generate a serial number in ResetBoard() is always the same
+    // OnGetInfo() is called from the connector and the time is very likely always different
+    // Therefore millis() can be used for randomSeed
+    generateSerial(false);
     setLastCommandMillis();
     cmdMessenger.sendCmdStart(kInfo);
-    cmdMessenger.sendCmdArg(type);
+    cmdMessenger.sendCmdArg(F(MOBIFLIGHT_TYPE));
     cmdMessenger.sendCmdArg(name);
     cmdMessenger.sendCmdArg(serial);
     cmdMessenger.sendCmdArg(VERSION);
@@ -452,18 +468,58 @@ bool getStatusConfig()
 // ************************************************************
 // serial number handling
 // ************************************************************
+void generateRandomSerial()
+{
+    randomSeed(millis());
+    sprintf(serial, "SN-%03x-%03x", (unsigned int)random(4095), (unsigned int)random(4095));
+    MFeeprom.write_block(MEM_OFFSET_SERIAL, serial, MEM_LEN_SERIAL);
+}
+
+void generateUniqueSerial()
+{
+    sprintf(serial, "SN-");
+    for (size_t i = 0; i < UniqueIDsize; i++) {
+        sprintf(&serial[3 + i * 2], "%02X", UniqueID[i]);
+    }
+}
+
 void generateSerial(bool force)
 {
-    MFeeprom.read_block(MEM_OFFSET_SERIAL, serial, MEM_LEN_SERIAL);
-    if (!force && serial[0] == 'S' && serial[1] == 'N')
+    if (force) {
+        // A serial number is forced to generate
+        // generate a serial number acc. the old style also for the Pico
+        generateRandomSerial();
         return;
-    randomSeed(analogRead(RANDOM_SEED_INPUT));
-    sprintf(serial, "SN-%03x-", (unsigned int)random(4095));
-    sprintf(&serial[7], "%03x", (unsigned int)random(4095));
-    MFeeprom.write_block(MEM_OFFSET_SERIAL, serial, MEM_LEN_SERIAL);
-    if (!force) {
-        MFeeprom.write_byte(MEM_OFFSET_CONFIG, 0x00); // First byte of config to 0x00 to ensure to start 1st time with empty config, but not if forced from the connector to generate a new one
     }
+
+    // A serial number according old style is already generated and saved to the eeprom
+    if (MFeeprom.read_byte(MEM_OFFSET_SERIAL) == 'S' && MFeeprom.read_byte(MEM_OFFSET_SERIAL + 1) == 'N') {
+        MFeeprom.read_block(MEM_OFFSET_SERIAL, serial, MEM_LEN_SERIAL);
+        return;
+    }
+
+    // A uniqueID is already generated and saved to the eeprom
+    if (MFeeprom.read_byte(MEM_OFFSET_SERIAL) == 'I' && MFeeprom.read_byte(MEM_OFFSET_SERIAL + 1) == 'D') {
+        generateUniqueSerial();
+        return;
+    }
+
+    // Coming here no UniqueID and no serial number is available, so it's the first start up of a board
+#if defined(ARDUINO_ARCH_AVR)
+    // Generate a serial number for AVR's
+    // To have not always the same starting point for the random generator, millis() are
+    // used as starting point. It is very unlikely that the time between flashing the firmware
+    // and getting the command to send the info's to the connector is always the same.
+    generateRandomSerial();
+#elif defined(ARDUINO_ARCH_RP2040)
+    // Read the uniqueID for Pico's and use it as serial number
+    generateUniqueSerial();
+    // mark this in the eeprom that a UniqueID is used on first start up for Pico's
+    MFeeprom.write_block(MEM_OFFSET_SERIAL, "ID", 2);
+#endif
+    // Set first byte of config to 0x00 to ensure empty config on 1st start up
+    // Otherwise the complete length of the config will be send with 0xFF (empty EEPROM)
+    MFeeprom.write_byte(MEM_OFFSET_CONFIG, 0x00);
 }
 
 void OnGenNewSerial()
@@ -477,16 +533,13 @@ void OnGenNewSerial()
 // ************************************************************
 void storeName()
 {
-    char prefix[] = "#";
-    MFeeprom.write_block(MEM_OFFSET_NAME, prefix, 1);
+    MFeeprom.write_byte(MEM_OFFSET_NAME, '#');
     MFeeprom.write_block(MEM_OFFSET_NAME + 1, name, MEM_LEN_NAME - 1);
 }
 
 void restoreName()
 {
-    char testHasName[1] = "";
-    MFeeprom.read_block(MEM_OFFSET_NAME, testHasName, 1);
-    if (testHasName[0] != '#')
+    if (MFeeprom.read_byte(MEM_OFFSET_NAME) != '#')
         return;
 
     MFeeprom.read_block(MEM_OFFSET_NAME + 1, name, MEM_LEN_NAME - 1);

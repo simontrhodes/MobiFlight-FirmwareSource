@@ -9,6 +9,7 @@
 #include "Button.h"
 #include "Encoder.h"
 #include "MFEEPROM.h"
+#include "ArduinoUniqueID.h"
 #if MF_ANALOG_SUPPORT == 1
 #include "Analog.h"
 #endif
@@ -114,6 +115,9 @@ void SetPowerSavingMode(bool state)
 #if MF_SEGMENT_SUPPORT == 1
     LedSegment::PowerSave(state);
 #endif
+#if MF_STEPPER_SUPPORT == 1
+    Stepper::PowerSave(state);
+#endif
 
 #ifdef DEBUG2CMDMESSENGER
     if (state)
@@ -139,7 +143,6 @@ void updatePowerSaving()
 // ************************************************************
 void ResetBoard()
 {
-    generateSerial(false);
     setLastCommandMillis();
     restoreName();
     loadConfig();

@@ -53,10 +53,6 @@
 #define MAX_INPUT_SHIFTERS  4
 #define MAX_DIGIN_MUX       4
 
-#define STEPS         64
-#define STEPPER_SPEED 400 // 300 already worked, 467, too?
-#define STEPPER_ACCEL 800
-
 #define MOBIFLIGHT_TYPE     "MobiFlight Mega"
 #define MOBIFLIGHT_SERIAL   "1234567890"
 #define MOBIFLIGHT_NAME     "MobiFlight Mega"
@@ -65,7 +61,6 @@
 #define MEMLEN_NAMES_BUFFER 1000 // max. size for configBuffer, contains only names from inputs
 #define MF_MAX_DEVICEMEM    1500 // max. memory size for devices
 
-#define RANDOM_SEED_INPUT A0
 
 #endif
 

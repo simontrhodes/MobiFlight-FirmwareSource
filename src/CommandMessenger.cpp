@@ -61,6 +61,7 @@ void attachCommandCallbacks()
     cmdMessenger.attach(kSetStepper, Stepper::OnSet);
     cmdMessenger.attach(kResetStepper, Stepper::OnReset);
     cmdMessenger.attach(kSetZeroStepper, Stepper::OnSetZero);
+    cmdMessenger.attach(kSetStepperSpeedAccel, Stepper::OnSetSpeedAccel);
 #endif
 
 #if MF_SERVO_SUPPORT == 1
@@ -85,7 +86,7 @@ void attachCommandCallbacks()
     cmdMessenger.attach(kSetLcdDisplayI2C, LCDDisplay::OnSet);
 #endif
 
-#if MF_OUTPUT_SHIFTER_SUPPORT
+#if MF_OUTPUT_SHIFTER_SUPPORT == 1
     cmdMessenger.attach(kSetShiftRegisterPins, OutputShifter::OnSet);
 #endif
 
