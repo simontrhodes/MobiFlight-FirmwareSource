@@ -22,8 +22,8 @@ enum {
     kTypeInputShifter,        // 12 Input shift register support (example: 74HC165)
     kTypeMuxDriver,           // 13 Multiplexer selector support (generates select outputs)
     kTypeDigInMux,            // 14 Digital input multiplexer support (example: 74HCT4067, 74HCT4051)
-    kTypePWMDriver            // 15 PWM Servo Driver board with 16 channels (example: PCA9685)
-        kTypeStepper          // new stepper type with settings for backlash and deactivate output
+    kTypeStepper,             // new stepper type with settings for backlash and deactivate output
+    kTypePWMDriver            // 16 PWM Servo Driver board with 16 channels (example: PCA9685)
 
 };
 
