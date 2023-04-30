@@ -10,13 +10,13 @@
 
 namespace PWMDriver
 {
-    MFPWMDriver *servoDrivers[MAX_MFSERVODRIVERS];
+    MFPWMDriver *servoDrivers[MAX_PWM_DRIVERS];
     uint8_t      servoDriversRegistered = 0;
 
     void Add(uint8_t addr, uint16_t pwmModules)
     {
 
-        if (servoDriversRegistered == MAX_MFSERVODRIVERS) {
+        if (servoDriversRegistered == MAX_PWM_DRIVERS) {
 #ifdef DEBUG2CMDMESSENGER
             // Debug Error Message to Connector
             cmdMessenger.sendCmd(kStatus, F("Reached maximum servo driver boards"));

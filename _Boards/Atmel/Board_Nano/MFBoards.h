@@ -19,6 +19,9 @@
 #ifndef MF_SERVO_SUPPORT
 #define MF_SERVO_SUPPORT 1
 #endif
+#ifndef MF_PWM_DRIVER_SUPPORT
+#define MF_PWM_DRIVER_SUPPORT 0
+#endif
 #ifndef MF_ANALOG_SUPPORT
 #define MF_ANALOG_SUPPORT 1
 #endif
@@ -42,6 +45,7 @@
 #define MAX_ENCODERS        9
 #define MAX_STEPPERS        2
 #define MAX_MFSERVOS        2
+#define MAX_PWM_DRIVERS     0
 #define MAX_MFLCD_I2C       2
 #define MAX_ANALOG_INPUTS   6
 #define MAX_OUTPUT_SHIFTERS 2
@@ -59,7 +63,6 @@
 #define MEMLEN_CONFIG       286  // max. size for config which wil be stored in EEPROM
 #define MEMLEN_NAMES_BUFFER 220  // max. size for configBuffer, contains only names from inputs
 #define MF_MAX_DEVICEMEM    300  // max. memory size for devices
-
 
 #endif
 

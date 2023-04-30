@@ -19,7 +19,7 @@
 #ifndef MF_SERVO_SUPPORT
 #define MF_SERVO_SUPPORT 1
 #endif
-#ifndef MF_SERVODRIVER_SUPPORT
+#ifndef MF_PWM_DRIVER_SUPPORT
 #define MF_PWM_DRIVER_SUPPORT 1
 #endif
 #ifndef MF_ANALOG_SUPPORT
@@ -39,13 +39,13 @@
 #define MF_DIGIN_MUX_SUPPORT 1
 #endif
 
-#define MAX_OUTPUTS        40
-#define MAX_BUTTONS        68
-#define MAX_LEDSEGMENTS    4
-#define MAX_ENCODERS       20
-#define MAX_STEPPERS       10
-#define MAX_MFSERVOS       10
-#define MAX_MFSERVODRIVERS 4
+#define MAX_OUTPUTS     40
+#define MAX_BUTTONS     68
+#define MAX_LEDSEGMENTS 4
+#define MAX_ENCODERS    20
+#define MAX_STEPPERS    10
+#define MAX_MFSERVOS    10
+#define MAX_PWM_DRIVERS 4
 
 #define MAX_MFLCD_I2C       2
 #define MAX_ANALOG_INPUTS   16
@@ -60,7 +60,6 @@
 #define MEMLEN_CONFIG       1496 // max. size for config which wil be stored in EEPROM
 #define MEMLEN_NAMES_BUFFER 1000 // max. size for configBuffer, contains only names from inputs
 #define MF_MAX_DEVICEMEM    1500 // max. memory size for devices
-
 
 #endif
 
