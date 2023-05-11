@@ -10,16 +10,16 @@
 
 namespace PWMDriver
 {
-    MFPWMDriver *servoDrivers[MAX_PWM_DRIVERS];
-    uint8_t      servoDriversRegistered = 0;
+    MFPWMDriver *pwmDrivers[MAX_PWM_DRIVERS];
+    uint8_t      pwmDriversRegistered = 0;
 
     void Add(uint8_t addr, uint16_t pwmModules)
     {
 
-        if (servoDriversRegistered == MAX_PWM_DRIVERS) {
+        if (pwmDriversRegistered == MAX_PWM_DRIVERS) {
 #ifdef DEBUG2CMDMESSENGER
             // Debug Error Message to Connector
-            cmdMessenger.sendCmd(kStatus, F("Reached maximum servo driver boards"));
+            cmdMessenger.sendCmd(kStatus, F("Reached maximum PWM driver boards"));
 #endif
             return;
         }
@@ -27,29 +27,29 @@ namespace PWMDriver
         if (!FitInMemory(sizeof(MFPWMDriver))) {
 #ifdef DEBUG2CMDMESSENGER
             // Debug Error Message to Connector
-            cmdMessenger.sendCmd(kStatus, F("Servo Driver Board does not fit in Memory!"));
+            cmdMessenger.sendCmd(kStatus, F("PWM Driver Board does not fit in Memory!"));
 #endif
             return;
         }
-        servoDrivers[servoDriversRegistered] = new (allocateMemory(sizeof(MFPWMDriver))) MFPWMDriver();
-        servoDrivers[servoDriversRegistered]->attach(addr, pwmModules);
+        pwmDrivers[pwmDriversRegistered] = new (allocateMemory(sizeof(MFPWMDriver))) MFPWMDriver();
+        pwmDrivers[pwmDriversRegistered]->attach(addr, pwmModules);
 
         // all set
-        servoDriversRegistered++;
+        pwmDriversRegistered++;
 
 #ifdef DEBUG2CMDMESSENGER
-        cmdMessenger.sendCmd(kStatus, F("Added Servo Driver"));
+        cmdMessenger.sendCmd(kStatus, F("Added PWM Driver"));
 #endif
     }
 
     void Clear()
     {
-        for (uint8_t i = 0; i < servoDriversRegistered; i++) {
-            servoDrivers[i]->detach();
+        for (uint8_t i = 0; i < pwmDriversRegistered; i++) {
+            pwmDrivers[i]->detach();
         }
-        servoDriversRegistered = 0;
+        pwmDriversRegistered = 0;
 #ifdef DEBUG2CMDMESSENGER
-        cmdMessenger.sendCmd(kStatus, F("Cleared servo driver boards"));
+        cmdMessenger.sendCmd(kStatus, F("Cleared PWM driver boards"));
 #endif
     }
 
@@ -59,9 +59,9 @@ namespace PWMDriver
         int pwmPin    = cmdMessenger.readInt16Arg();
         int newPos    = cmdMessenger.readInt16Arg();
 
-        if (pwmModule >= servoDriversRegistered)
+        if (pwmModule >= pwmDriversRegistered)
             return;
-        servoDrivers[pwmModule]->moveTo(pwmPin, newPos);
+        pwmDrivers[pwmModule]->moveTo(pwmPin, newPos);
     }
 
 } // namespace
