@@ -23,7 +23,6 @@ public:
 
 private:
     bool                    _initialized;
-    uint8_t                 _moduleNumber; // Number of modules
     Adafruit_PWMServoDriver _pwmDriver;
     uint16_t                _currentValue[16] = {0}; // Current value of each pwm of the module, initilzed to 0
 };

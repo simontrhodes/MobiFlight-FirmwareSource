@@ -19,6 +19,9 @@
 #ifndef MF_SERVO_SUPPORT
 #define MF_SERVO_SUPPORT 1
 #endif
+#ifndef MF_PWM_DRIVER_SUPPORT
+#define MF_PWM_DRIVER_SUPPORT 0
+#endif
 #ifndef MF_ANALOG_SUPPORT
 #define MF_ANALOG_SUPPORT 1
 #endif
@@ -53,6 +56,9 @@
 #endif
 #ifndef MAX_MFSERVOS
 #define MAX_MFSERVOS        2
+#endif
+#ifndef MAX_PWM_DRIVERS
+#define MAX_PWM_DRIVERS     0
 #endif
 #ifndef MAX_MFLCD_I2C
 #define MAX_MFLCD_I2C       2
