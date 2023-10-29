@@ -38,6 +38,9 @@
 #define MF_MUX_SUPPORT       1
 #define MF_DIGIN_MUX_SUPPORT 1
 #endif
+#ifndef MF_CUSTOMDEVICE_SUPPORT
+#define MF_CUSTOMDEVICE_SUPPORT 2
+#endif
 
 #ifndef MAX_OUTPUTS
 #define MAX_OUTPUTS         18
@@ -46,7 +49,7 @@
 #define MAX_BUTTONS         18
 #endif
 #ifndef MAX_LEDSEGMENTS
-#define MAX_LEDSEGMENTS     1
+#define MAX_LEDSEGMENTS     4
 #endif
 #ifndef MAX_ENCODERS
 #define MAX_ENCODERS        9
@@ -74,6 +77,9 @@
 #endif
 #ifndef MAX_DIGIN_MUX
 #define MAX_DIGIN_MUX       3
+#endif
+#ifndef MAX_CUSTOM_DEVICES
+#define MAX_CUSTOM_DEVICES  2
 #endif
 
 #ifndef MOBIFLIGHT_TYPE

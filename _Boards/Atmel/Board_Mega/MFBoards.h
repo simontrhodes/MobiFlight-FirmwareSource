@@ -38,6 +38,9 @@
 #define MF_MUX_SUPPORT       1
 #define MF_DIGIN_MUX_SUPPORT 1
 #endif
+#ifndef MF_CUSTOMDEVICE_SUPPORT
+#define MF_CUSTOMDEVICE_SUPPORT 1
+#endif
 
 #ifndef MAX_OUTPUTS
 #define MAX_OUTPUTS         40
@@ -74,6 +77,9 @@
 #endif
 #ifndef MAX_DIGIN_MUX
 #define MAX_DIGIN_MUX       4
+#endif
+#ifndef MAX_CUSTOM_DEVICES
+#define MAX_CUSTOM_DEVICES  5
 #endif
 
 #ifndef MOBIFLIGHT_TYPE

@@ -44,7 +44,8 @@ enum {
     kInputShifterChange,   // 29
     kDigInMuxChange,       // 30
     kSetStepperSpeedAccel, // 31
-    kSetPWMDriver,         // 32
+    kSetCustomDevice,      // 32
+    kSetPWMDriver,         // 33
     kDebug = 0xFF          // 255
 };
 
