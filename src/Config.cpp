@@ -374,7 +374,7 @@ void readConfig()
             params[0] = readUintFromEEPROM(&addreeprom); // Address
             params[1] = readUintFromEEPROM(&addreeprom); // Number of module
             PWMDriver::Add(params[0], params[1]);
-            copy_success = readEndCommandFromEEPROM(&addreeprom); // check EEPROM until end of name
+            copy_success = readEndCommandFromEEPROM(&addreeprom, ':'); // check EEPROM until end of name
             break;
 #endif
 
