@@ -124,12 +124,15 @@ void SetPowerSavingMode(bool state)
 #if MF_STEPPER_SUPPORT == 1
     Stepper::PowerSave(state);
 #endif
+#if MF_CUSTOMDEVICE_SUPPORT == 1
+    CustomDevice::PowerSave(state);
+#endif
 
 #ifdef DEBUG2CMDMESSENGER
     if (state)
-        cmdMessenger.sendCmd(kDebug, F("On"));
+        cmdMessenger.sendCmd(kDebug, F("Power saving mode on"));
     else
-        cmdMessenger.sendCmd(kDebug, F("Off"));
+        cmdMessenger.sendCmd(kDebug, F("Power saving mode off"));
 #endif
 }
 
@@ -149,7 +152,6 @@ void updatePowerSaving()
 // ************************************************************
 void ResetBoard()
 {
-    setLastCommandMillis();
     restoreName();
     loadConfig();
 }

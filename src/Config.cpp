@@ -51,6 +51,7 @@
 #define STRINGIZER(arg) #arg
 #define STR_VALUE(arg)  STRINGIZER(arg)
 #define VERSION         STR_VALUE(BUILD_VERSION)
+#define CORE_VERSION    STR_VALUE(CORE_BUILD_VERSION)
 
 MFEEPROM MFeeprom;
 
@@ -115,7 +116,6 @@ void OnSetConfig()
 #ifdef DEBUG2CMDMESSENGER
     cmdMessenger.sendCmd(kDebug, F("Setting config start"));
 #endif
-    setLastCommandMillis();
     char   *cfg    = cmdMessenger.readStringArg();
     uint8_t cfgLen = strlen(cfg);
 
@@ -248,6 +248,85 @@ bool readEndCommandFromEEPROM(uint16_t *addreeprom, uint8_t delimiter)
     return true;
 }
 
+void sendFailureMessage(const char *deviceName)
+{
+    cmdMessenger.sendCmdStart(kStatus);
+    cmdMessenger.sendCmdArg(deviceName);
+    cmdMessenger.sendCmdArg(F("does not fit in Memory"));
+    cmdMessenger.sendCmdEnd();
+}
+
+bool getArraysizes()
+{
+    if (configLength == 0) // do nothing if no config is available
+        return true;
+    uint16_t addreeprom              = MEM_OFFSET_CONFIG;               // define first memory location where config is saved in EEPROM
+    uint8_t  device                  = readUintFromEEPROM(&addreeprom); // read the first value from EEPROM, it's a device definition
+    bool     copy_success            = true;                            // will be set to false if copying input names to nameBuffer exceeds array dimensions
+    uint8_t  numberDevices[kTypeMax] = {0};
+
+    if (device == 0) // just to be sure, configLength should also be 0
+        return true;
+
+    // step through the EEPROM and calculate the number of devices for each type
+    do // step through the EEPROM until it is NULL terminated
+    {
+        numberDevices[device]++;
+        copy_success = readEndCommandFromEEPROM(&addreeprom, ':'); // check EEPROM until end of name
+        device       = readUintFromEEPROM(&addreeprom);
+    } while (device && copy_success);
+
+    if (!copy_success) { // too much/long names for input devices -> tbd how to handle this!!
+        cmdMessenger.sendCmd(kStatus, F("Failure, EEPROM size exceeded "));
+        return false;
+    }
+
+    // then call the function to allocate required memory for the arrays of each type
+    if (!Button::setupArray(numberDevices[kTypeButton]))
+        sendFailureMessage("Button");
+    if (!Output::setupArray(numberDevices[kTypeOutput]))
+        sendFailureMessage("Output");
+#if MF_SEGMENT_SUPPORT == 1
+    if (!LedSegment::setupArray(numberDevices[kTypeLedSegmentDeprecated] + numberDevices[kTypeLedSegmentMulti]))
+        sendFailureMessage("7Segment");
+#endif
+#if MF_STEPPER_SUPPORT == 1
+    if (!Stepper::setupArray(numberDevices[kTypeStepper] + numberDevices[kTypeStepperDeprecated1] + numberDevices[kTypeStepperDeprecated2]))
+        sendFailureMessage("Stepper");
+#endif
+#if MF_SERVO_SUPPORT == 1
+    if (!Servos::setupArray(numberDevices[kTypeServo]))
+        sendFailureMessage("Servo");
+#endif
+    if (!Encoder::setupArray(numberDevices[kTypeEncoder] + numberDevices[kTypeEncoderSingleDetent]))
+        sendFailureMessage("Encoders");
+#if MF_LCD_SUPPORT == 1
+    if (!LCDDisplay::setupArray(numberDevices[kTypeLcdDisplayI2C]))
+        sendFailureMessage("LCD");
+#endif
+#if MF_ANALOG_SUPPORT == 1
+    if (!Analog::setupArray(numberDevices[kTypeAnalogInput]))
+        sendFailureMessage("AnalogIn");
+#endif
+#if MF_OUTPUT_SHIFTER_SUPPORT == 1
+    if (!OutputShifter::setupArray(numberDevices[kTypeOutputShifter]))
+        sendFailureMessage("OutputShifter");
+#endif
+#if MF_INPUT_SHIFTER_SUPPORT == 1
+    if (!InputShifter::setupArray(numberDevices[kTypeInputShifter]))
+        sendFailureMessage("InputShifter");
+#endif
+#if MF_DIGIN_MUX_SUPPORT == 1
+    if (!DigInMux::setupArray(numberDevices[kTypeDigInMux]))
+        sendFailureMessage("DigInMux");
+#endif
+#if MF_CUSTOMDEVICE_SUPPORT == 1
+    if (!CustomDevice::setupArray(numberDevices[kTypeCustomDevice]))
+        sendFailureMessage("CustomDevice");
+#endif
+    return true;
+}
+
 void readConfig()
 {
     if (configLength == 0) // do nothing if no config is available
@@ -255,12 +334,14 @@ void readConfig()
     uint16_t addreeprom   = MEM_OFFSET_CONFIG;               // define first memory location where config is saved in EEPROM
     uint16_t addrbuffer   = 0;                               // and start with first memory location from nameBuffer
     char     params[8]    = "";                              // buffer for reading parameters from EEPROM and sending to ::Add() function of device
-    char     command      = readUintFromEEPROM(&addreeprom); // read the first value from EEPROM, it's a device definition
+    uint8_t  command      = readUintFromEEPROM(&addreeprom); // read the first value from EEPROM, it's a device definition
     bool     copy_success = true;                            // will be set to false if copying input names to nameBuffer exceeds array dimensions
                                                              // not required anymore when pins instead of names are transferred to the UI
 
     if (command == 0) // just to be sure, configLength should also be 0
         return;
+
+    getArraysizes();
 
     do // go through the EEPROM until it is NULL terminated
     {
@@ -312,7 +393,7 @@ void readConfig()
             params[6] = (uint8_t)0; // backlash
             params[7] = false;      // deactivate output
 
-            if (command == kTypeStepperDeprecated2) {
+            if (command == kTypeStepperDeprecated2 || command == kTypeStepper) {
                 params[4] = readUintFromEEPROM(&addreeprom); // Button number
             }
 
@@ -467,7 +548,6 @@ void readConfig()
 
 void OnGetConfig()
 {
-    setLastCommandMillis();
     cmdMessenger.sendCmdStart(kInfo);
     if (configLength > 0) {
         cmdMessenger.sendCmdArg((char)MFeeprom.read_byte(MEM_OFFSET_CONFIG));
@@ -485,12 +565,12 @@ void OnGetInfo()
     // OnGetInfo() is called from the connector and the time is very likely always different
     // Therefore millis() can be used for randomSeed
     generateSerial(false);
-    setLastCommandMillis();
     cmdMessenger.sendCmdStart(kInfo);
     cmdMessenger.sendCmdArg(F(MOBIFLIGHT_TYPE));
     cmdMessenger.sendCmdArg(name);
     cmdMessenger.sendCmdArg(serial);
     cmdMessenger.sendCmdArg(VERSION);
+    cmdMessenger.sendCmdArg(CORE_VERSION);
     cmdMessenger.sendCmdEnd();
 }
 
